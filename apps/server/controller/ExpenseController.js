@@ -1,86 +1,83 @@
+const { AssertionError } = require("assert");
+
 const express = require("express");
 
 const router = express.Router();
+const Category = require("../models/Category")
 const Expense = require("../models/Expense")
 const User = require("../models/User")
 
-router.get("/seed", async (req, res) => {
+const seedExpenses = async () => {
     await Expense.deleteMany({})
-    User.find({}, (err, allUsers) => {
-        if (err) {
-            res.status(400).json({ error: err.message });
-        }
-        allUsers.forEach(user => {
-            Expense.insertMany([
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383ce",
-                    description: "utilise",
-                    date: "2022-10-31",
-                    amount: -300,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383cd",
-                    description: "go to thailand",
-                    date: "2022-10-31",
-                    amount: -150,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383cd",
-                    description: "go to korea",
-                    date: "2022-10-15",
-                    amount: -120,
-                    user: user._id
-                },
-                {
-                    title: "Income",
-                    category: "636a3739f5d4c6c63e9383cc",
-                    description: "payday",
-                    date: "2022-10-01",
-                    amount: 3000,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383cf",
-                    description: "GA",
-                    date: "2022-10-03",
-                    amount: -400,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383d0",
-                    description: "",
-                    date: "2022-10-09",
-                    amount: -400,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383d1",
-                    description: "food",
-                    date: "2022-10-09",
-                    amount: -50,
-                    user: user._id
-                },
-                {
-                    title: "Expense",
-                    category: "636a3739f5d4c6c63e9383d2",
-                    description: "tax",
-                    date: "2022-10-09",
-                    amount: -140,
-                    user: user._id
-                },
+    const adminUser = await User.findOne({ Username: 'admin' }).exec()
+    const categories = await Category.find({}).exec()
+    if (categories.length !== 7) {
+        throw AssertionError("Should have 7 categories seeded")
+    }
+    return await Expense.insertMany([
+        {
+            title: "Income",
+            category: categories[0]._id,
+            description: "Year end bonus",
+            date: "2022-10-31",
+            amount: 3000,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[1]._id,
+            description: "Vacation",
+            date: "2022-10-31",
+            amount: -150,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[2]._id,
+            description: "Utility bills",
+            date: "2022-10-15",
+            amount: -120,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[3]._id,
+            description: "Leetcode Premium",
+            date: "2022-10-01",
+            amount: -30,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[4]._id,
+            description: "Netflix subscription",
+            date: "2022-10-03",
+            amount: -40,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[5]._id,
+            description: "McDonalds Happy Meal",
+            date: "2022-10-09",
+            amount: -4,
+            user: adminUser._id
+        },
+        {
+            title: "Expense",
+            category: categories[6]._id,
+            description: "WorldVision donation",
+            date: "2022-10-09",
+            amount: -50,
+            user: adminUser._id
+        },
 
-            ]);
-        });
-        res.status(200).json({ msg: "Seeded expenses", userIds: allUsers.map(user => user._id) });
-    })
+    ]);
+}
+
+router.get("/seed", async (req, res) => {
+    res.status(200).json(await seedExpenses());
+
 });
 
 router.get("/expense/:id", async (req, res) => {
@@ -163,3 +160,4 @@ router.put("/update/:id", (req, res) => {
 })
 
 module.exports = router;
+module.exports.seedExpenses = seedExpenses;

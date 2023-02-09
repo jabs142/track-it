@@ -5,9 +5,9 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const generateToken = require("../generateToken")
 
-router.get("/seed", async (req, res) => {
+const seedUsers = async () => {
   await User.deleteMany({});
-  const users = await User.insertMany([
+  return await User.insertMany([
     {
       Username: "admin",
       Password: bcrypt.hashSync("123", saltRounds),
@@ -15,7 +15,10 @@ router.get("/seed", async (req, res) => {
       Email: "admin@ga.com"
     },
   ]);
-  res.json(users);
+}
+
+router.get("/seed", async (req, res) => {
+  res.json(await seedUsers());
 });
 
 router.post("/CreateAccount", async (req, res) => {
@@ -139,6 +142,7 @@ router.put("/update/:id", async (req, res) => {
 })
 
 
-
 module.exports = router;
+module.exports.seedUsers = seedUsers
+module.exports.test = 'seedUsers'
 

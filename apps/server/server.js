@@ -26,9 +26,20 @@ app.get("/test", (req, res) => {
 
 app.use(express.static("../client/dist"));
 
+app.get("/api/seed", async (req, res) => {
+  await UserController.seedUsers()
+  console.log('seeded users')
+  await CategoryController.seedCategories()
+  console.log('seeded categories')
+  await ExpenseController.seedExpenses()
+  console.log('seeded expenses')
+  res.sendStatus(200)
+})
+
 app.get("/*", (req, res) => {
   res.sendFile(path.resolve("../client/dist/index.html"));
 });
+
 
 mongoose.connection.once("open", () => {
 

@@ -3,12 +3,11 @@ const express = require("express");
 const router = express.Router();
 const Category = require("../models/Category")
 
-router.get("/seed", async (req, res) => {
+const seedCategories = async () => {
     await Category.deleteMany({});
-
-    const category = await Category.insertMany([
+    return await Category.insertMany([
         {
-            category: "Income"
+            category: "Salary"
         },
         {
             category: "Travel"
@@ -29,7 +28,10 @@ router.get("/seed", async (req, res) => {
             category: "Other"
         },
     ]);
-    res.json(category);
+}
+
+router.get("/seed", async (_, res) => {
+    res.json(await seedCategories());
 });
 
 router.get("/", async (req, res) => {
@@ -40,5 +42,5 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error });
     }
 });
-
 module.exports = router;
+module.exports.seedCategories = seedCategories
